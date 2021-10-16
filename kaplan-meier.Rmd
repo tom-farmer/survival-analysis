@@ -1,0 +1,64 @@
+---
+title: "Kaplan-Meier Exploration"
+output: html_document
+---
+
+Playing around with Kaplain-Meier estimation of survival curve.
+ * Produces single curve for all the data, or subsets of the data based on variables.
+ * Essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
+
+```{r include=FALSE}
+library("survival")
+library("survminer")
+library("tidyverse")
+```
+
+
+Get the test dataset.  Target is week and arrest, week is the length of time, and arrest is the censoring variable.  8 predictor variables are single columns, while one variable is split out over all the 52 weeks (emp1-52).
+
+```{r}
+url <- "http://socserv.mcmaster.ca/jfox/Books/Companion/data/Rossi.txt"
+rossi <- read.table(url, header=TRUE)
+print(paste0(c("Rows: ", "Cols: "), dim(rossi)))
+print(names(rossi))
+#summary(rossi[])
+```
+
+Histogram of when people either get arrested or are lost from the study.
+```{r}
+hist(rossi$week)
+```
+
+Fit Kaplan-Meier with `survfit` and use a survival object as the target in the formula using `Surv(time, censor_var)`.
+```{r}
+km_rossi <- survfit(Surv(week, arrest) ~ 1, data = rossi)
+plot(km_rossi, ylim=c(0.7, 1), xlab="Weeks", ylab="Proportion Not Rearrested")
+```
+
+Access the estimated survival function using `$surv`.  Calculations below show the hazard at each time.
+```{r}
+surv_calcs <- tibble("surv" = km_rossi$surv,
+                     "surv_lag" = dplyr::lag(km_rossi$surv, default = 1))
+
+surv_calcs <- surv_calcs %>%
+  mutate(haz = 1 - (surv / surv_lag))
+
+plot(surv_calcs$haz)
+```
+
+Change the formula to have the Kaplan-Meier plot split by any of the variables. 
+```{r}
+survfit(Surv(week, arrest) ~ fin, data = rossi) %>%
+plot(., ylim=c(0.7, 1))
+
+```
+Tried using `survminer::ggsurvplot` which gives a better output plot but it encounters some error.  Seems to be missing at least one value at the end.
+```{r, warning=FALSE}
+survfit(Surv(week, arrest) ~ fin, data = rossi) %>%
+ggsurvplot(., ylim=c(0.7, 1))
+
+```
+
+```{r}
+
+```
