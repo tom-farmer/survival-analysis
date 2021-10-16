@@ -4,6 +4,7 @@ output: html_document
 ---
 
 Playing around with Kaplain-Meier estimation of survival curve.
+
  * Produces single curve for all the data, or subsets of the data based on variables.
  * Essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
 
@@ -24,6 +25,7 @@ print(names(rossi))
 #summary(rossi[])
 ```
 
+
 Histogram of when people either get arrested or are lost from the study.
 ```{r}
 hist(rossi$week)
@@ -35,7 +37,7 @@ km_rossi <- survfit(Surv(week, arrest) ~ 1, data = rossi)
 plot(km_rossi, ylim=c(0.7, 1), xlab="Weeks", ylab="Proportion Not Rearrested")
 ```
 
-Access the estimated survival function using `$surv`.  Calculations below show the hazard at each time.
+Access the estimated survival function using `$surv`.  Calculations below show the hazard at each time.  Similar to a life insurance q from a mortality table.
 ```{r}
 surv_calcs <- tibble("surv" = km_rossi$surv,
                      "surv_lag" = dplyr::lag(km_rossi$surv, default = 1))
