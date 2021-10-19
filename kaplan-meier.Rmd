@@ -3,6 +3,7 @@ title: "Kaplan-Meier Exploration"
 output: html_document
 ---
 
+# Kaplan-Meier Survival Models
 Playing around with Kaplain-Meier estimation of survival curve.
 
  * Produces single curve for all the data, or subsets of the data based on variables.

@@ -18,6 +18,7 @@ I used a docker container to run this code in order to make this a bit more repr
 - [R survival package documentation](https://cran.r-project.org/web/packages/survival/survival.pdf)
 - [Cox Proportional-Hazards Regression for Survival Data in R](https://socialsciences.mcmaster.ca/jfox/Books/Companion/appendices/Appendix-Cox-Regression.pdf)
 - [CRAN Task View: Survival Analysis](https://cran.r-project.org/web/views/Survival.html)
+- [Survival Analysis with R](https://rviews.rstudio.com/2017/09/25/survival-analysis-with-r/)
 
 ### Survival Analysis in Python
 - [scikit-survival](https://scikit-survival.readthedocs.io/en/stable/index.html#)
