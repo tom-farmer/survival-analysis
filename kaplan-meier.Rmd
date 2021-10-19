@@ -9,6 +9,8 @@ Playing around with Kaplain-Meier estimation of survival curve.
  * Essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
 
 ```{r include=FALSE}
+#install.packages(c("survival", "survminer", "ranger", "Rcpp"))
+
 library("survival")
 library("survminer")
 library("tidyverse")

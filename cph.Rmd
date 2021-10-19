@@ -25,6 +25,7 @@ cph_full <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + mar + paro + pr
 summary(cph_full)
 ```
 
+Plot the survival curve from this model fit.
 ```{r}
 ggsurvplot(survfit(cph_full), data = rossi, ylim = c(0.6, 1))
 ```
@@ -35,28 +36,36 @@ Show the specific predictions from the model for a couple different rows in the 
 ggsurvplot(survfit(cph_full, newdata = rossi[1:5,]), data = rossi)
 ```
 
-The cox proportional hazard model is a combination of a non-parametric 'baseline hazard' along with a parametric portion which is the 'proportional hazards given by exp(beta*X).  The relative differences between the proportional pieces of the hazard are given by the betas in the fit.  To get the baseline hazard, that can be pulled from the model using `basehaz()`.  This can be thought of as the 'q' in a mortality model before it is modified by the coefficients for each individual.  You can derive a survival curve from this
+The cox proportional hazard model is a combination of a non-parametric 'baseline hazard' along with a parametric portion which is the 'proportional hazards given by exp(beta*X).  The relative differences between the proportional pieces of the hazard are given by the betas in the fit.  To get the baseline hazard, that can be pulled from the model using `basehaz()`.  This can be thought of as the 'q' in a mortality model before it is modified by the coefficients for each individual.  The survival curve can be derived from these values by stepping forward each time period and applying this hazard rate to get the probability of surviving to the next time period.
 ```{r}
 #basehaz(cph_full)
-plot(x = basehaz(cph_full)[,2], y = basehaz(cph_full)[,1])
+ggplot(basehaz(cph_full)) + geom_line(aes(x = time, y = hazard))
 ```
 
-There is one 'baseline hazard' rate fit for ALL observations.  This can be changed by using `strata()` in the formula when fitting the model.  This fits different baseline hazards for each strata in the group varaible.  For example, if we wanted to fit a different baseline hazard for married vs non-married individuals in the data, we would do the following:
+There is one 'baseline hazard' rate fit for ALL observations.  This can be changed by using `strata()` in the formula when fitting the model.  This fits different baseline hazards for each strata in the group varaible.  For example, if we wanted to fit a different baseline hazard for married vs non-married individuals in the data, we would use the following code.
+
+One question I still have: Are the coefficients the same between strata?  It would seem so given that the summary doens't show different coefficients by strata, but I'm not 100% sure.  To fit different coefficients, it's probably easier to just split the data in two and fit two models with different baseline hazards and coefficients.  This seems to imply that splitting the model by strata assumes that the factors affect different strata exactly the same way.  For example, the number of prior arrests has the same impact on survival regardless of whether or not the individual was married.  
 ```{r}
-cph_full <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + strat(mar) + paro + prio,
+cph_full2 <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + strata(mar) + paro + prio,
                      data = rossi)
 
-summary(cph_full)
+summary(cph_full2)
+```
+
+Now that we fit a model with two strata, we can show the different baseline hazards for the two strata: married and non-married individuals:
+```{r}
+basehaz(cph_full2) %>%
+  ggplot() + geom_line(aes(x = time, y = hazard, color = strata))
 ```
 
 Compare the KM fit to the full cph fit
 ```{r}
-cph_full2 <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + strata(mar) + paro + prio,
-                     data = rossi) 
 
-summary(cph_full2)
 ```
-# Test out using log of the prior arrests to see if it improves performance.  Concordance goes up which is an indicator of better fit.  All the other tests go down, which I think is the right direction, but need to do more research on that.
+
+How can we improve the fit of this model, and compare models with different sets of variables and different features?
+
+Test out using log of the prior arrests to see if it improves performance.  Concordance goes up which is an indicator of better fit.  All the other tests go down, which I think is the right direction, but need to do more research on that.
 ```{r}
 cph_full3 <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + mar + paro + log(prio + 1),
                      data = rossi) 
