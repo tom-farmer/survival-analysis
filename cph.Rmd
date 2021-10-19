@@ -1,0 +1,80 @@
+---
+title: "Cox Proportional Hazard Models"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("survival")
+library("survminer")
+library("tidyverse")
+```
+
+Get the test dataset.  Target is week and arrest, week is the length of time, and arrest is the censoring variable.  8 predictor variables are single columns, while one variable is split out over all the 52 weeks (emp1-52).
+
+```{r}
+url <- "http://socserv.mcmaster.ca/jfox/Books/Companion/data/Rossi.txt"
+rossi <- read.table(url, header=TRUE)
+```
+
+Fit an initial CPH model with all the variables available (except the time-dependent one).  Coefficients with a negative coefficient mean that the chances of being arrested are lower (higher survival chances), and vice versa.  Coefficients with positive coefficients (exp(coefficients) > 1) imply higher chances of being arrested (lower survival chances).
+
+```{r}
+cph_full <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + mar + paro + prio,
+                     data = rossi)
+
+summary(cph_full)
+```
+
+```{r}
+ggsurvplot(survfit(cph_full), data = rossi, ylim = c(0.6, 1))
+```
+
+Show the specific predictions from the model for a couple different rows in the data.
+```{r}
+#rossi[1:5,3:10]
+ggsurvplot(survfit(cph_full, newdata = rossi[1:5,]), data = rossi)
+```
+
+The cox proportional hazard model is a combination of a non-parametric 'baseline hazard' along with a parametric portion which is the 'proportional hazards given by exp(beta*X).  The relative differences between the proportional pieces of the hazard are given by the betas in the fit.  To get the baseline hazard, that can be pulled from the model using `basehaz()`.  This can be thought of as the 'q' in a mortality model before it is modified by the coefficients for each individual.  You can derive a survival curve from this
+```{r}
+#basehaz(cph_full)
+plot(x = basehaz(cph_full)[,2], y = basehaz(cph_full)[,1])
+```
+
+There is one 'baseline hazard' rate fit for ALL observations.  This can be changed by using `strata()` in the formula when fitting the model.  This fits different baseline hazards for each strata in the group varaible.  For example, if we wanted to fit a different baseline hazard for married vs non-married individuals in the data, we would do the following:
+```{r}
+cph_full <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + strat(mar) + paro + prio,
+                     data = rossi)
+
+summary(cph_full)
+```
+
+Compare the KM fit to the full cph fit
+```{r}
+cph_full2 <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + strata(mar) + paro + prio,
+                     data = rossi) 
+
+summary(cph_full2)
+```
+# Test out using log of the prior arrests to see if it improves performance.  Concordance goes up which is an indicator of better fit.  All the other tests go down, which I think is the right direction, but need to do more research on that.
+```{r}
+cph_full3 <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + mar + paro + log(prio + 1),
+                     data = rossi) 
+
+summary(cph_full3)
+```
+
+One way to compare goodness of fit is to use AIC.  Looking at the AIC for the two models shows that the original model has a better fit, indicated by the lower AIC.  
+```{r}
+paste0("AIC on original model: ", extractAIC(cph_full)[2], "\n", "AIC on modified model: ", extractAIC(cph_full2)[2]) %>% writeLines
+
+```
+Compare km fit on one dimension to cph fit on one dimension
+```{r}
+
+```
+
+Figure out how the cph formula actually works.  Does the cph fit 
+```{r}
+
+```
