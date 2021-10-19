@@ -4,9 +4,10 @@ output: html_document
 ---
 
 # Kaplan-Meier Survival Models
+
 Playing around with Kaplain-Meier estimation of survival curve.
 
- * Produces single curve for all the data, or subsets of the data based on variables.
+ * KM produces single curve for all the data, or subsets of the data based on variables.
  * Essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
 
 ```{r include=FALSE}
@@ -19,6 +20,9 @@ library("tidyverse")
 
 
 Get the test dataset.  Target is week and arrest, week is the length of time, and arrest is the censoring variable.  8 predictor variables are single columns, while one variable is split out over all the 52 weeks (emp1-52).
+
+Reference for the dataset:
+https://www.rdocumentation.org/packages/RcmdrPlugin.survival/versions/1.2-1/topics/Rossi
 
 ```{r}
 url <- "http://socserv.mcmaster.ca/jfox/Books/Companion/data/Rossi.txt"
@@ -42,13 +46,14 @@ plot(km_rossi, ylim=c(0.7, 1), xlab="Weeks", ylab="Proportion Not Rearrested")
 
 Access the estimated survival function using `$surv`.  Calculations below show the hazard at each time.  Similar to a life insurance q from a mortality table.
 ```{r}
-surv_calcs <- tibble("surv" = km_rossi$surv,
+surv_calcs <- tibble("time" = km_rossi$time,
+                     "surv" = km_rossi$surv,
                      "surv_lag" = dplyr::lag(km_rossi$surv, default = 1))
 
 surv_calcs <- surv_calcs %>%
   mutate(haz = 1 - (surv / surv_lag))
 
-plot(surv_calcs$haz)
+ggplot(surv_calcs) + geom_line(aes(x=time, y=haz))
 ```
 
 Change the formula to have the Kaplan-Meier plot split by any of the variables. 

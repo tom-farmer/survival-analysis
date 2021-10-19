@@ -12,7 +12,8 @@ library("tidyverse")
 
 # Cox Proportional Hazard Survival Models
 
-Get the test dataset.  Target is week and arrest, week is the length of time, and arrest is the censoring variable.  8 predictor variables are single columns, while one variable is split out over all the 52 weeks (emp1-52).
+Using the same dataset from the Kaplan-Meier analysis.
+
 
 ```{r}
 url <- "http://socserv.mcmaster.ca/jfox/Books/Companion/data/Rossi.txt"
@@ -78,7 +79,8 @@ summary(cph_full3)
 
 One way to compare goodness of fit is to use AIC.  Looking at the AIC for the two models shows that the original model has a better fit, indicated by the lower AIC.  
 ```{r}
-paste0("AIC on original model: ", extractAIC(cph_full)[2], "\n", "AIC on modified model: ", extractAIC(cph_full2)[2]) %>% writeLines
+paste0("AIC on original model: ", extractAIC(cph_full)[2], "\n", "AIC on modified model: ", extractAIC(cph_full2)[2]) %>% 
+  writeLines
 
 ```
 Compare km fit on one dimension to cph fit on one dimension

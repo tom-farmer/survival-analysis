@@ -3,7 +3,7 @@ title: "surv-ml"
 output: html_document
 ---
 
-# Machine Learning Survival Model
+# Machine Learning Survival Models
 
 Todo:
 
@@ -12,7 +12,10 @@ Todo:
  - Compare fit of the model to cph models.  concordance??
  - bayesian parameter search???
 
+## Random Survival Forests with Ranger
+
 ```{r}
+install.packages("ranger")
 library(ranger)
 ```
 
