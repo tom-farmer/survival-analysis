@@ -40,6 +40,14 @@ Show the specific predictions from the model for a couple different rows in the 
 ggsurvplot(survfit(cph_full, newdata = rossi[1:5,]), data = rossi)
 ```
 
+Since the cox model is proportional, the estimated hazard rates over time for different individuals in the data are estimated to be some multiplicative factor of the base hazard.  The code below shows that when we divide the cumulative hazard for row 1 by the cumulative hazard for row 2 we get a constant value for all time periods.
+
+So we can say something to the effect of: "The combination of variables for individual A make their hazard rate 1.5x the hazard rate of individual B."  Without more complicated model features, the hazard rates will be proportional.
+```{r}
+preds <- survfit(cph_full, newdata = rossi[1:5,])
+preds$cumhaz[,1] / preds$cumhaz[,2]
+```
+
 The cox proportional hazard model is a combination of a non-parametric 'baseline hazard' along with a parametric portion which is the 'proportional hazards given by exp(beta*X).  The relative differences between the proportional pieces of the hazard are given by the betas in the fit.  To get the baseline hazard, that can be pulled from the model using `basehaz()`.  This can be thought of as the 'q' in a mortality model before it is modified by the coefficients for each individual.  The survival curve can be derived from these values by stepping forward each time period and applying this hazard rate to get the probability of surviving to the next time period.
 ```{r}
 #basehaz(cph_full)
@@ -83,12 +91,11 @@ paste0("AIC on original model: ", extractAIC(cph_full)[2], "\n", "AIC on modifie
   writeLines
 
 ```
+
 Compare km fit on one dimension to cph fit on one dimension
 ```{r}
 
 ```
 
-Figure out how the cph formula actually works.  Does the cph fit 
-```{r}
-
-```
+Play around with aalens additive regression model?
+make another file to do this: aareg.Rmd
