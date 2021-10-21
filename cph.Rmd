@@ -20,7 +20,7 @@ url <- "http://socserv.mcmaster.ca/jfox/Books/Companion/data/Rossi.txt"
 rossi <- read.table(url, header=TRUE)
 ```
 
-Fit an initial CPH model with all the variables available (except the time-dependent one).  Coefficients with a negative coefficient mean that the chances of being arrested are lower (higher survival chances), and vice versa.  Coefficients with positive coefficients (exp(coefficients) > 1) imply higher chances of being arrested (lower survival chances).
+Fit an initial CPH model with all the variables available (except the time-dependent one).  Coefficients with a negative value mean that the chances of being arrested are lower (higher survival chances).  Coefficients with positive coefficients (exp(coefficients) > 1) imply higher chances of being arrested (lower survival chances).
 
 ```{r}
 cph_full <- coxph(Surv(week, arrest) ~ fin + age + race + wexp + mar + paro + prio,
@@ -42,7 +42,7 @@ ggsurvplot(survfit(cph_full, newdata = rossi[1:5,]), data = rossi)
 
 Since the cox model is proportional, the estimated hazard rates over time for different individuals in the data are estimated to be some multiplicative factor of the base hazard.  The code below shows that when we divide the cumulative hazard for row 1 by the cumulative hazard for row 2 we get a constant value for all time periods.
 
-So we can say something to the effect of: "The combination of variables for individual A make their hazard rate 1.5x the hazard rate of individual B."  Without more complicated model features, the hazard rates will be proportional.
+So we can say something to the effect of: "The combination of variables for individual A make their hazard rate X times the hazard rate of individual B" where X is some scalar value.  Without more complicated model features, the hazard rates will be proportional.
 ```{r}
 preds <- survfit(cph_full, newdata = rossi[1:5,])
 preds$cumhaz[,1] / preds$cumhaz[,2]
@@ -70,12 +70,20 @@ basehaz(cph_full2) %>%
   ggplot() + geom_line(aes(x = time, y = hazard, color = strata))
 ```
 
-Compare the KM fit to the full cph fit
-```{r}
+We can plot the Kaplan-Meier survival curve against the base hazard from the CPH model.  The survival curve produced from `survfit.cph()` here uses the mean of each input variable to produce this curve, which may not be a reasonable output for the CPH model.
 
+Technical note here: for some reason `ggsurvplot(..., combine = TRUE)` produces an error, but when I use the underlying function `ggsurvplot_combine()` it works OK.  Wish it was less buggy, this is a super nice feature, really beats having to extract survival curves manually, combine, and ggplot.
+```{r warning=FALSE}
+km_rossi <- survfit(Surv(week, arrest) ~ 1, data = rossi)
+cph_rossi <- survfit(cph_full)
+
+ggsurvplot_combine(list(km_rossi, cph_rossi), 
+           data = rossi,
+           combine = TRUE,
+           ylim = c(0.6, 1))
 ```
 
-How can we improve the fit of this model, and compare models with different sets of variables and different features?
+How can we improve the fit of this model, and what are the metrics used to compare models with different sets of variables and different features?
 
 Test out using log of the prior arrests to see if it improves performance.  Concordance goes up which is an indicator of better fit.  All the other tests go down, which I think is the right direction, but need to do more research on that.
 ```{r}
