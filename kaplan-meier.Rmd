@@ -7,11 +7,11 @@ output: html_document
 
 Playing around with Kaplain-Meier estimation of survival curve.
 
- * KM produces single curve for all the data, or subsets of the data based on variables.
- * Essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
+ * KM produces a basic survival curve solely using the data available (non-parametric)
+ * KM is essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
 
 ```{r include=FALSE}
-#install.packages(c("survival", "survminer", "ranger", "Rcpp"))
+#install.packages(c("survival", "survminer", "ranger", "Rcpp", "ggfortify))
 
 library("survival")
 library("survminer")
@@ -56,19 +56,18 @@ surv_calcs <- surv_calcs %>%
 ggplot(surv_calcs) + geom_line(aes(x=time, y=haz))
 ```
 
-Change the formula to have the Kaplan-Meier plot split by any of the variables. 
+Change the formula to have the Kaplan-Meier plot split by the variable `fin`. It now produces two separate survival curves from the data.
 ```{r}
 survfit(Surv(week, arrest) ~ fin, data = rossi) %>%
 plot(., ylim=c(0.7, 1))
 
 ```
-Tried using `survminer::ggsurvplot` which gives a better output plot but it encounters some error.  Seems to be missing at least one value at the end.
+
+`survminer::ggsurvplot` gives a slightly nicer looking output plot for the survival curves.  Here are the resulting curves when the data is partitioned into 4 subsets defined by `fin` and `mar`.
+
 ```{r, warning=FALSE}
-survfit(Surv(week, arrest) ~ fin, data = rossi) %>%
-ggsurvplot(., ylim=c(0.7, 1))
+survfit(Surv(week, arrest) ~ fin + mar, data = rossi) %>%
+ggsurvplot(., ylim=c(0.6, 1))
 
 ```
 
-```{r}
-
-```
