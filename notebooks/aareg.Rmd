@@ -1,0 +1,31 @@
+---
+title: "aareg"
+output: html_document
+---
+
+# Aalen's Additive Regression Survival Model Exploration
+
+Using the same dataset from the Kaplan-Meier analysis.
+
+```{r}
+library("survival")
+library("tidyverse")
+library("ggfortify")
+url <- "http://socserv.mcmaster.ca/jfox/Books/Companion/data/Rossi.txt"
+rossi <- read.table(url, header=TRUE)
+```
+
+## The Aalen's Additive Regression Model
+
+```{r}
+aar_full <- aareg(Surv(week, arrest) ~ fin + age + race + wexp + mar + paro + log(prio+1),
+                     data = rossi)
+
+summary(aar_full)
+```
+
+```{r}
+
+autoplot(aar_full)
+```
+

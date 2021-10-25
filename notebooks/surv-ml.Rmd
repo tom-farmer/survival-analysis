@@ -15,7 +15,7 @@ Todo:
 ## Random Survival Forests with Ranger
 
 ```{r}
-install.packages("ranger")
+#install.packages("ranger")
 library(ranger)
 ```
 
@@ -32,15 +32,28 @@ death_times = stree$unique.death.times
 surv_prob = data.frame(stree$survival)
 avg_prob = sapply(surv_prob, mean)
 
-plot(death_times, avg_prob, type = "s")
-
 plot(death_times, avg_prob,
      type = "s",
      ylim = c(0.7,1),
      col = "red", lwd = 2, bty = "n",
      ylab = "Survival Probability", xlab = "Time in Months",
      main = "Survival Tree Model\nAverage Survival Curve")
- 
+
+```
+How to predict survival curves from the trained tree model.  Right now working on extracting the predictions and visualizing them so we can compare against CPH.  `survfit` doesn't work with ranger, so I have to do this a bit manually.  Will keep searching for good visualization for ranger survival models but haven't seen anything yet.
+```{r}
+# Predict using the trained model
+preds <- predict(stree, data = rossi[1:5,])
+
+# Pull data, reshape and plot
+rbind(preds$unique.death.times, preds$survival) %>% 
+        t %>% 
+        as_tibble %>% 
+        tidyr::pivot_longer(cols=c("V6", "V2", "V3", "V4", "V5")) %>%
+        ggplot(.) + geom_line(aes(x=V1, y=value, color = name))
 
 
 ```
+
+## Gradient Boosted Survival Models?
+## Survival Neural Nets?
