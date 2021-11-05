@@ -9,6 +9,7 @@ The rough order that I made these notebooks in is:
  1. kaplan-meier.Rmd
  2. cph.Rmd
  3. surv-ml.Rmd
+ 4. survival-exploration.ipynb
 
 ## Environment
 I used a docker container to run RStudio in order to make this a bit more reproducible if I come back to run it again.  Used the rocker/tidyverse:4.0.5 image, the specifics can be found in the run_rstudio.sh script.  If you have docker, run that script once to initialize and start the container.  Restart the container with `docker start survival-analysis` if it isn't running at some point in the future.  Navigate to http://localhost:8787/ to open RStudio once the container is running.  Running docker locally doesn't have great performance for training models, but nothing in this repo is too computationally expensive for a small container.
