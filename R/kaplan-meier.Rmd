@@ -8,7 +8,9 @@ output: html_document
 Playing around with Kaplain-Meier estimation of survival curve.
 
  * KM produces a basic survival curve solely using the data available (non-parametric)
- * KM is essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state
+ * KM is equivalent to an actuarial approach to developing mortality rates using a cohort.
+   * See section 4.2 from the [SOA's Experience Study Calculations](https://www.soa.org/globalassets/assets/Files/Research/2016-10-experience-study-calculations.pdf) paper.
+   * In the example in section 4.2, withdrawals are equivalent to censoring in survival analysis, and deaths are equivalent to the event being studied.
 
 ```{r include=FALSE}
 #install.packages(c("survival", "survminer", "ranger", "Rcpp", "ggfortify))

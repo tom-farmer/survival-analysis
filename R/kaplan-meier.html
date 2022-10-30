@@ -173,7 +173,11 @@ pre code {
 <p>Playing around with Kaplain-Meier estimation of survival curve.</p>
 <ul>
 <li>KM produces a basic survival curve solely using the data available (non-parametric)</li>
-<li>KM is essentially equivalent to an actuarial experience study using exposures from start to the censoring or end state</li>
+<li>KM is equivalent to an actuarial approach to developing mortality rates using a cohort.
+<ul>
+<li>See section 4.2 from the <a href="https://www.soa.org/globalassets/assets/Files/Research/2016-10-experience-study-calculations.pdf">SOA’s Experience Study Calculations</a> paper.</li>
+<li>In the example in section 4.2, withdrawals are equivalent to censoring in survival analysis, and deaths are equivalent to the event being studied.</li>
+</ul></li>
 </ul>
 <p>Get the test dataset. Target is week and arrest, week is the length of time, and arrest is the censoring variable. 8 predictor variables are single columns, while one variable is split out over all the 52 weeks (emp1-52).</p>
 <p>Reference for the dataset: <a href="https://www.rdocumentation.org/packages/RcmdrPlugin.survival/versions/1.2-1/topics/Rossi" class="uri">https://www.rdocumentation.org/packages/RcmdrPlugin.survival/versions/1.2-1/topics/Rossi</a></p>
